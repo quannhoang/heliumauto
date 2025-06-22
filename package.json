@@ -1,0 +1,27 @@
+{
+  "name": "heliumauto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "login": "npx playwright codegen https://members.helium10.com/user/signin --save-storage=auth.json",
+    "start": "npx playwright test",
+    "startui": "npx playwright test --ui"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "papaparse": "^5.5.3",
+    "playwright": "^1.53.0",
+    "tsc-watch": "^7.1.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.0",
+    "@types/node": "^24.0.3",
+    "@types/papaparse": "^5.3.16",
+    "typescript": "^5.8.3"
+  }
+}
