@@ -2,6 +2,8 @@ import { test, expect, Page } from '@playwright/test'
 import fs from 'fs'
 import Papa from 'papaparse'
 
+const processAfterRow = 1242
+
 interface Row {
     brand: string
     revenue: string
@@ -54,9 +56,10 @@ const searchSingleBrand = async (page: Page, brand: string) => {
     await page.waitForTimeout(3000); // Wait for 3 seconds to ensure the page is loaded
     
     // Fill exact name brand search input
-    await page.fill('input[data-testid="exactbrandsearch"]', brand);
+    // <input name="brandInclude" label="Exact Brand Search" placeholder="Ex: Apple" class="sc-hIPBNq sc-jnbAOD eYtKDj" value="">
+    await page.fill('input[name="brandInclude"]', brand);
     await page.click('button[data-testid="search"]');
-    
+
     // Wait until the search results are loaded (ASIN Revenue should be visible)
     // Wait for 10 seconds only, if not visible, return 0
     try {
@@ -96,13 +99,19 @@ test('Use Exact Name Brand Search', async ({ page }) => {
     // For each row in the csv file, search for the brand and get the revenue
     // If any error occurs, save all processed rows to 'brands_saved.csv'
     try {
-        for (const index in rows) { // Limit to first 100 rows for testing
+        const processIndexArray = []
+        for (let i = processAfterRow; i < rows.length; i++) {
+            processIndexArray.push(i);
+        }
+        for (const index of processIndexArray) {
             const row = rows[index];
             const brand = row.brand.trim();
             
             if (brand && row.revenue === '' && row.note === '') { // Only search if revenue is not already set
                 // Remove any comment in ( ) and trim the brand name
                 let formattedBrand = brand.replace(/\s*\(.*?\)\s*/g, '').trim();
+                // Remove all special characters except for alphanumeric characters, spaces, hyphens, single quotes, dots
+                formattedBrand = formattedBrand.replace(/[^a-zA-Z0-9\s\-'.]/g, '').trim();
                 // If brand name is all cap, convert to title case
                 const isAllCaps = formattedBrand === formattedBrand.toUpperCase();
                 if (isAllCaps) {
